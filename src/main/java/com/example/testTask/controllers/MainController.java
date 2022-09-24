@@ -3,6 +3,7 @@ package com.example.testTask.controllers;
 import com.example.testTask.controllers.models.ConverterDto;
 import com.example.testTask.controllers.models.HistoryDto;
 import com.example.testTask.controllers.models.Person;
+import com.example.testTask.controllers.userdata.UserService;
 import com.example.testTask.currencyservice.interfaces.CurrencyService;
 import com.example.testTask.repository.interfaces.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.List;
 
@@ -26,17 +28,11 @@ public class MainController {
     CurrencyService currencyService;
 
     /**
-     * Идентификация пользователя
-     * -1 - пользователь не авторизован
-     * >0 - id пользователя
-     */
-    int userId = -1;
-
-    /**
      * Страница конвертации валют
      */
     @GetMapping("/convert")
     public String convert(Model model){
+        int userId = UserService.usersCache.get(RequestContextHolder.currentRequestAttributes().getSessionId());
         if (userId == -1)
             return "redirect:/error";
 
@@ -57,6 +53,7 @@ public class MainController {
             Model model,
             @ModelAttribute("converterdto") ConverterDto converterDto
     ){
+        int userId = UserService.usersCache.get(RequestContextHolder.currentRequestAttributes().getSessionId());
         if (userId == -1)
             return "redirect:/error";
 
@@ -100,9 +97,11 @@ public class MainController {
      */
     @PostMapping("/login")
     public String login(@ModelAttribute("person") Person person){
-       userId = profileRepository.getUser(
+       int userId = profileRepository.getUser(
                person.getLogin(), DigestUtils.md5DigestAsHex(person.getPassword().getBytes()).toUpperCase()
        );
+
+       UserService.usersCache.put(RequestContextHolder.currentRequestAttributes().getSessionId(), userId);
 
        if(userId > 0)
            return "redirect:/convert";
