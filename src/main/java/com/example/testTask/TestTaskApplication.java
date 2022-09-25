@@ -1,5 +1,6 @@
 package com.example.testTask;
 
+import com.example.testTask.currencyservice.interfaces.CurrencyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class TestTaskApplication implements CommandLineRunner{
 	private static final Logger log = LoggerFactory.getLogger(TestTaskApplication.class);
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	@Autowired
+	CurrencyService currencyService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(TestTaskApplication.class, args);
 	}
@@ -95,5 +99,7 @@ public class TestTaskApplication implements CommandLineRunner{
 				"    password character(32) COLLATE pg_catalog.\"default\" NOT NULL,\n" +
 				"    CONSTRAINT users_pkey PRIMARY KEY (id)\n" +
 				")");
+
+		currencyService.load();
 	}
 }

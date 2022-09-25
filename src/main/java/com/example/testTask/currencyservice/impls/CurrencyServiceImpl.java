@@ -58,7 +58,6 @@ public class CurrencyServiceImpl implements CurrencyService {
         if (currencies.isEmpty()) {
             currenciesRepository.insertCurrencies(getCurrencies());
             currencies = currenciesRepository.getCurrenciesByDate(date);
-            load();
         }
     }
 
